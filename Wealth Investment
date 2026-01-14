@@ -1,0 +1,26 @@
+# 1) Ingest & feature engineering
+market = load_market_data()
+macro = load_macro_data()
+client = load_client_profile()
+features = build_features(market, macro)
+
+# 2) Regime detection
+hmm = train_hmm(features.regime_inputs)
+regime_probs = hmm.predict_proba(features.regime_inputs[-1])
+
+# 3) Forecasts
+ret_model = train_gbm(features.ret_inputs, labels=features.future_returns)
+vol_models = fit_garch_per_asset(market.prices)
+Sigma_regime = build_covariance(regime_probs, vol_models, correlations)
+
+# 4) Optimization
+constraints = build_constraints(client)
+lambda_risk = map_risk_tolerance(client.risk_score)
+gamma_turnover = map_horizon(client.horizon)
+w_opt = mean_cvar_optimize(ret_model.expected_returns, Sigma_regime,
+                           lambda_risk, gamma_turnover, constraints)
+
+# 5) Policy & serving
+trades = generate_trades(current_weights, w_opt, transaction_costs)
+explain = build_explanations(ret_model, w_opt, regime_probs)
+serve_recommendation(client.id, w_opt, trades, explain)
