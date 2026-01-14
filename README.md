@@ -1,7 +1,5 @@
 # supreme-train
 Personalized Wealth Advisory & Risk-Aware Portfolio Optimization
-Overview
-This project builds a machine learning system for personalized wealth management. It combines predictive modeling, portfolio optimization, and explainability to deliver individualized investment recommendations that adapt to market regimes and client profiles.
 
 Objectives
 Regime-aware forecasting: Predict asset returns and volatility under different market conditions.
